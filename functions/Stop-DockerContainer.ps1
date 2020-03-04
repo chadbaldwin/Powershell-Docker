@@ -61,7 +61,7 @@ function Stop-DockerContainer {
         $InputObject,
 
         [Parameter(Mandatory, ParameterSetName='All')]
-        [Switch]$All,
+        [Switch]$All
     );
     
     process {
