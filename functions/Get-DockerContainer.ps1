@@ -60,10 +60,16 @@ function Get-DockerContainer {
 
     process {
         if ($Force) {
-            $objects = docker inspect (docker ps -a --quiet) | ConvertFrom-Json;
+            $containerIds = docker ps -a --quiet;
         } else {
-            $objects = docker inspect (docker ps --quiet) | ConvertFrom-Json;
+            $containerIds = docker ps --quiet;
         };
+		
+		if ($containerIds) {
+			$objects = docker inspect ($containerIds) | ConvertFrom-Json;
+		} else {
+			return;
+		};
 
         switch ($psCmdlet.ParameterSetName) {
             'ById'    { $containers = $objects | Where-Object ID -like "$Id*"; }
