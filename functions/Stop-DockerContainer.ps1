@@ -1,6 +1,6 @@
 # Stop docker container based on Name, ID or pipeline input
 function Stop-DockerContainer {
-	[CmdletBinding(DefaultParameterSetName="Default")]
+	[CmdletBinding(DefaultParameterSetName="ById")]
 
 	param(
 		[Parameter(Mandatory=$true, ParameterSetName="ByPipeline", ValueFromPipeline=$true)] $pipelineInput,
@@ -17,7 +17,6 @@ function Stop-DockerContainer {
 			"ById"       { $containers = Get-DockerContainer -Id $Id; }
 			"ByName"     { $containers = Get-DockerContainer -Name $Name; }
 			"All"        { $containers = Get-DockerContainer }
-			"Default"    { 'Do nothing...' }
 		};
 		
 		docker stop ($containers.ID);
