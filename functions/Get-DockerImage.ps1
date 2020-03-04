@@ -66,8 +66,8 @@ function Get-DockerImage {
         };
 
         switch ($psCmdlet.ParameterSetName) {
-            'ById'    { $returnObjects = $objects | ? ID -like "sha256:$Id*"; }
-            'ByName'  { $returnObjects = $objects | ? { $_.Repository+':'+$_.Tag -like "$Name"; }; }
+            'ById'    { $returnObjects = $objects | Where-Object ID -like "sha256:$Id*"; }
+            'ByName'  { $returnObjects = $objects | Where-Object { $_.Repository+':'+$_.Tag -like "$Name"; }; }
             'Default' { $returnObjects = $objects; }
         };
         

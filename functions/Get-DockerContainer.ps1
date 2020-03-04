@@ -60,17 +60,17 @@ function Get-DockerContainer {
 
     process {
         if ($Force) {
-            $objects = docker container ls -a --no-trunc --format='{{json .}}' | ConvertFrom-Json;
+            $objects = docker inspect (docker ps -a --quiet) | ConvertFrom-Json;
         } else {
-            $objects = docker container ls --no-trunc --format='{{json .}}' | ConvertFrom-Json;
+            $objects = docker inspect (docker ps --quiet) | ConvertFrom-Json;
         };
 
         switch ($psCmdlet.ParameterSetName) {
-            'ById'    { $returnObjects = $objects | ? ID -like "$Id*"; }
-            'ByName'  { $returnObjects = $objects | ? Names -like "$Name"; }
-            'Default' { $returnObjects = $objects; }
+            'ById'    { $containers = $objects | Where-Object ID -like "$Id*"; }
+            'ByName'  { $containers = $objects | Where-Object Name -like "/$Name"; }
+            'Default' { $containers = $objects; }
         };
         
-        return $returnObjects;
+        return $containers;
     };
 };
