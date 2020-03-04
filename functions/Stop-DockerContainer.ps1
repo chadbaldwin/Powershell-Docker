@@ -46,23 +46,34 @@ function Stop-DockerContainer {
 
         Stops ALL containers whose Name matches *dotnet*
     #>
-    [CmdletBinding(DefaultParameterSetName="ById")]
+    [CmdletBinding(DefaultParameterSetName='ById')]
 
     param(
-        [Parameter(Mandatory=$true, ParameterSetName="ByPipeline", ValueFromPipeline=$true)] $pipelineInput,
-        
-        [Parameter(Mandatory=$true, ParameterSetName="ById")]   [ValidateNotNullOrEmpty()] [String[]]$Id,
-        [Parameter(Mandatory=$true, ParameterSetName="ByName")] [ValidateNotNullOrEmpty()] [String[]]$Name,
-        
-        [Parameter(Mandatory=$true, ParameterSetName="All")] [Switch]$All
+        [Parameter(Mandatory, ParameterSetName='ById')]
+        [ValidateNotNullOrEmpty()]
+        [string]$Id,
+
+        [Parameter(Mandatory, ParameterSetName='ByName')]
+        [ValidateNotNullOrEmpty()]
+        [string]$Name,
+
+        [Parameter(Mandatory, ParameterSetName='ByPipeline', ValueFromPipeline)]
+        $InputObject,
+
+        [Parameter(Mandatory, ParameterSetName='All')]
+        [Switch]$All,
     );
     
     process {
         switch ($psCmdlet.ParameterSetName) {
-            "ByPipeline" { $containers = $pipelineInput }
-            "ById"       { $containers = Get-DockerContainer -Id $Id; }
-            "ByName"     { $containers = Get-DockerContainer -Name $Name; }
-            "All"        { $containers = Get-DockerContainer }
+            'ByPipeline' { $containers = $InputObject; }
+            'ById'       { $containers = Get-DockerContainer -Id $Id; }
+            'ByName'     { $containers = Get-DockerContainer -Name $Name; }
+            'All'        { $containers = Get-DockerContainer; }
+        };
+        
+        If (!($containers)) {
+            return;
         };
         
         docker stop ($containers.ID);

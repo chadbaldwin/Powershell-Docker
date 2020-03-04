@@ -43,13 +43,19 @@ function Get-DockerContainer {
 
         Returns container(s) whose name matches *dotnet*
     #>
-    [CmdletBinding(DefaultParameterSetName="Default")]
+    [CmdletBinding(DefaultParameterSetName='Default')]
 
     Param(
-        [Parameter(Mandatory=$true, ParameterSetName="ById")]   [ValidateNotNullOrEmpty()] [String[]]$Id,
-        [Parameter(Mandatory=$true, ParameterSetName="ByName")] [ValidateNotNullOrEmpty()] [String[]]$Name,
+        [Parameter(Mandatory=$true, ParameterSetName='ById')]
+        [ValidateNotNullOrEmpty()]
+        [String]$Id,
         
-        [Parameter(Mandatory=$false)] [Switch]$Force
+        [Parameter(Mandatory=$true, ParameterSetName='ByName')]
+        [ValidateNotNullOrEmpty()]
+        [String]$Name,
+        
+        [Parameter(Mandatory=$false)]
+        [Switch]$Force
     );
 
     process {
@@ -57,12 +63,12 @@ function Get-DockerContainer {
             $objects = docker container ls -a --no-trunc --format='{{json .}}' | ConvertFrom-Json;
         } else {
             $objects = docker container ls --no-trunc --format='{{json .}}' | ConvertFrom-Json;
-        }
+        };
 
         switch ($psCmdlet.ParameterSetName) {
-            "ById"    { $returnObjects = $objects | ? ID -like "$Id*"; }
-            "ByName"  { $returnObjects = $objects | ? Names -like "$Name"; }
-            "Default" { $returnObjects = $objects; }
+            'ById'    { $returnObjects = $objects | ? ID -like "$Id*"; }
+            'ByName'  { $returnObjects = $objects | ? Names -like "$Name"; }
+            'Default' { $returnObjects = $objects; }
         };
         
         return $returnObjects;
