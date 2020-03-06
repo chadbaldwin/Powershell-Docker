@@ -65,10 +65,10 @@ function Get-DockerImage {
             $objects = docker image ls --no-trunc --format='{{json .}}' | ConvertFrom-Json;
         };
 
-        switch ($psCmdlet.ParameterSetName) {
-            'ById'    { $returnObjects = $objects | Where-Object ID -like "sha256:$Id*"; }
-            'ByName'  { $returnObjects = $objects | Where-Object { $_.Repository+':'+$_.Tag -like "$Name"; }; }
-            'Default' { $returnObjects = $objects; }
+        $returnObjects = switch ($psCmdlet.ParameterSetName) {
+            'ById'    { $objects | Where-Object ID -like "sha256:$Id*"; }
+            'ByName'  { $objects | Where-Object { $_.Repository+':'+$_.Tag -like "$Name"; }; }
+            'Default' { $objects; }
         };
         
         return $returnObjects;

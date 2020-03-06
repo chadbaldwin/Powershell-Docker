@@ -71,10 +71,10 @@ function Get-DockerContainer {
 			return;
 		};
 
-        switch ($psCmdlet.ParameterSetName) {
-            'ById'    { $containers = $objects | Where-Object ID -like "$Id*"; }
-            'ByName'  { $containers = $objects | Where-Object Name -like "/$Name"; }
-            'Default' { $containers = $objects; }
+        $containers = switch ($psCmdlet.ParameterSetName) {
+            'ById'    { $objects | Where-Object ID -like "$Id*"; }
+            'ByName'  { $objects | Where-Object Name -like "/$Name"; }
+            'Default' { $objects; }
         };
         
         return $containers;

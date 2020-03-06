@@ -65,11 +65,11 @@ function Stop-DockerContainer {
     );
     
     process {
-        switch ($psCmdlet.ParameterSetName) {
-            'ByPipeline' { $containers = $InputObject; }
-            'ById'       { $containers = Get-DockerContainer -Id $Id; }
-            'ByName'     { $containers = Get-DockerContainer -Name $Name; }
-            'All'        { $containers = Get-DockerContainer; }
+        $containers = switch ($psCmdlet.ParameterSetName) {
+            'ByPipeline' { $InputObject; }
+            'ById'       { Get-DockerContainer -Id $Id; }
+            'ByName'     { Get-DockerContainer -Name $Name; }
+            'All'        { Get-DockerContainer; }
         };
         
         If (!($containers)) {
