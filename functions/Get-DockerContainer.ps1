@@ -11,7 +11,10 @@ function Get-DockerContainer {
         The target containers Id or partial Id
 
     .PARAMETER Name
-        The target containers Name or Name mask
+        The target containers Name or mask
+        
+    .PARAMETER ImageName
+        The target containers Image name or mask
 
     .PARAMETER Force
         Include containers that are not running
@@ -54,27 +57,35 @@ function Get-DockerContainer {
         [ValidateNotNullOrEmpty()]
         [String]$Name,
         
+        [Parameter(Mandatory=$true, ParameterSetName='ByImageName')]
+        [ValidateNotNullOrEmpty()]
+        [String]$ImageName,
+
+        [Parameter(Mandatory=$false)]
+        [String]$Status,
+        
         [Parameter(Mandatory=$false)]
         [Switch]$Force
     );
 
     process {
-        if ($Force) {
-            $containerIds = docker ps -a --quiet;
+        $baseCommand = 'docker ps --quiet'
+        if ($Force) { $baseCommand += ' -a' };
+        if ($Status) { $baseCommand += " --filter 'status=$Status'" };
+        
+        $containerIds = iex $baseCommand;
+        
+        if ($containerIds) {
+            $objects = docker inspect ($containerIds) | ConvertFrom-Json;
         } else {
-            $containerIds = docker ps --quiet;
+            return;
         };
-		
-		if ($containerIds) {
-			$objects = docker inspect ($containerIds) | ConvertFrom-Json;
-		} else {
-			return;
-		};
 
         $containers = switch ($psCmdlet.ParameterSetName) {
-            'ById'    { $objects | Where-Object ID -like "$Id*"; }
-            'ByName'  { $objects | Where-Object Name -like "/$Name"; }
-            'Default' { $objects; }
+            'ById'         { $objects | Where-Object ID -like "$Id*"; }
+            'ByName'       { $objects | Where-Object Name -like "/$Name"; }
+            'ByImageName'  { $objects | Where-Object {$_.Config.Image -like "*$ImageName*"} }
+            'Default'      { $objects; }
         };
         
         return $containers;
@@ -82,5 +93,7 @@ function Get-DockerContainer {
 };
 
 # Enable auto complete parameter values
+Register-ArgumentCompleter -CommandName Get-DockerContainer -ParameterName Status -ScriptBlock { 'Created', 'Restarting', 'Running', 'Removing', 'Paused', 'Exited', 'Dead' }
 Register-ArgumentCompleter -CommandName Get-DockerContainer -ParameterName Name -ScriptBlock { (Get-DockerContainer -Force).Name.Substring(1) }
 Register-ArgumentCompleter -CommandName Get-DockerContainer -ParameterName Id -ScriptBlock { (Get-DockerContainer -Force).Id.Substring(0,12) }
+Register-ArgumentCompleter -CommandName Get-DockerContainer -ParameterName ImageName -ScriptBlock { (Get-DockerContainer -Force).Config.Image | Select-Object -Unique }
