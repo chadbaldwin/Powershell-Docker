@@ -80,3 +80,7 @@ function Get-DockerContainer {
         return $containers;
     };
 };
+
+# Enable auto complete parameter values
+Register-ArgumentCompleter -CommandName Get-DockerContainer -ParameterName Name -ScriptBlock { (Get-DockerContainer -Force).Name.Substring(1) }
+Register-ArgumentCompleter -CommandName Get-DockerContainer -ParameterName Id -ScriptBlock { (Get-DockerContainer -Force).Id.Substring(0,12) }

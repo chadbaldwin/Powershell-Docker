@@ -80,3 +80,7 @@ function Stop-DockerContainer {
         return;
     };
 };
+
+# Enable auto complete parameter values
+Register-ArgumentCompleter -CommandName Stop-DockerContainer -ParameterName Name -ScriptBlock { (Get-DockerContainer).Name.Substring(1) }
+Register-ArgumentCompleter -CommandName Stop-DockerContainer -ParameterName Id -ScriptBlock { (Get-DockerContainer).Id.Substring(0,12) }
